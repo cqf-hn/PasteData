@@ -15,4 +15,14 @@ Src:源数据的类 Dst:目标数据的类
 
 butterknife 之所以能够被调用是因为Butterknife.bind(this) 和 Butterknife.unbind(this)
 
-4. 多个数据之间的转化
+
+
+问题：
+    1. 多个数据之间的转化
+
+步骤：
+    1.获取被注解的类的成员变量
+    2.以被注解的成员变量的String查找SrcClass中的类的成员变量,
+        以DifField中的数值进行一一对应查找（查找不到报错）
+        DifField的value值只能是被包含SrcClass的vallue值（如果不是就报错）
+    3.如果能够在SrcClass中的类找到对应的成员变量，就为被注解的类赋值

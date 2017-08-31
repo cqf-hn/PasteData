@@ -3,9 +3,9 @@ package cqf.hn.pastedata;
 /**
  * Created by cqf on 2017/8/25 16:46
  */
-public class SrcData {
+public class SrcData1 {
     private String id;
-    private String type;
+    private String type1;
     private String desc;
     private String title;
 
@@ -17,12 +17,12 @@ public class SrcData {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
+    public String getType1() {
+        return type1;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setType1(String type1) {
+        this.type1 = type1;
     }
 
     public String getDesc() {
