@@ -18,6 +18,9 @@ import cqf.hn.pastedata.lib.annotation.SrcClass;
  * ele.getEnclosingElement().getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
  */
 
+/**
+ * set方法必须提供
+ */
 @SrcClass(value = {SrcData1.class})
 public class DstData {// TypeElement
 
@@ -27,7 +30,7 @@ public class DstData {// TypeElement
     }
 
     private String id; // VariableElement
-    @DifField(value = {SrcData1.class, SrcData2.class, SrcData3.class}, name = {"type1", "type2","type3"})
+    @DifField(value = {SrcData1.class, SrcData2.class, SrcData3.class}, name = {"type1", "type2", "type3"})
     private String type;
     private String desc;
     private String title;
@@ -36,8 +39,100 @@ public class DstData {// TypeElement
     private SrcData1 srcData1;
 
 
-    public String getId() {
-        return id;
+    private boolean ISHas;
+    private boolean iSHAS;
+    private boolean IsHas;
+
+    private boolean iS;
+    private boolean IS;
+    private boolean is;
+    private boolean Is;
+
+    private boolean isHas;
+
+    private boolean has;
+
+    public boolean isHas() {
+        return has;
+    }
+
+    public void setHas(boolean has) {
+        this.has = has;
+    }
+
+    public boolean iSHAS() {
+        return iSHAS;
+    }
+
+    public void setiSHAS(boolean iSHAS) {
+        this.iSHAS = iSHAS;
+    }
+
+
+
+    public boolean ISHas() {
+        return ISHas;
+    }
+
+    public void setISHas(boolean ISHas) {
+        this.ISHas = ISHas;
+    }
+
+    public boolean iS() {
+        return iS;
+    }
+
+    public void setiS(boolean iS) {
+        this.iS = iS;
+    }
+
+    public boolean IS() {
+        return IS;
+    }
+
+    public void setIS(boolean IS) {
+        this.IS = IS;
+    }
+
+    public boolean is() {
+        return is;
+    }
+
+    public void setIs(boolean is) {
+        this.is = is;
+    }
+
+
+    /**
+     * 切割set的方法后
+     * 有is开头：
+     *        只剩下is(只要有第二个字母大写：不变，否则都转换成小写)
+     *        is与与其他单词拼接(只要有第二个字母大写：不变)
+     * 如果没有is开头
+     *        添加is在开头
+     */
+
+
+
+    /**
+     * get/set 命名规则
+     * 一般JavaBean属性以小写字母开头，驼峰命名格式，相应的 getter/setter 方法是 get/set 接上首字母大写的属性名。例如：属性名为userName，其对应的getter/setter 方法是 getUserName/setUserName。
+     *
+     * 但是，还有一些特殊情况：
+     *
+     * 1、如果属性名的第二个字母大写，那么该属性名直接用作 getter/setter 方法中 get/set 的后部分，就是说大小写不变。例如属性名为uName，方法是getuName/setuName。
+     *
+     * 2、如果前两个字母是大写（一般的专有名词和缩略词都会大写），也是属性名直接用作 getter/setter 方法中 get/set 的后部分。例如属性名为URL，方法是getURL/setURL。
+     *
+     * 3、如果首字母大写，也是属性名直接用作 getter/setter 方法中 get/set 的后部分。例如属性名为Name，方法是getName/setName，这种是最糟糕的情况，会找不到属性出错，因为默认的属性名是name。
+     *
+     * 所以在action的全局变量和JavaBean命名时应该注意符合以上命名规范。
+     */
+
+
+
+    String getId() {
+        return "";
     }
 
     public void setId(String id) {
@@ -66,6 +161,28 @@ public class DstData {// TypeElement
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getA() {
+        return a;
+    }
+
+    public SrcData1 getSrcData1() {
+        return srcData1;
+    }
+
+    public void setSrcData1(SrcData1 srcData1) {
+        this.srcData1 = srcData1;
+    }
+
+    public void setData(SrcData1 srcData1, int a, String desc) throws ClassCastException {
+        this.a = a;
+        this.srcData1 = srcData1;
+        this.desc = desc;
+    }
+
+    public SrcData1 getData(SrcData1 srcData1, int a, String desc) throws ClassCastException {
+       return new SrcData1();
     }
 
     @Override

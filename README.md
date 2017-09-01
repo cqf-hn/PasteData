@@ -26,3 +26,6 @@ butterknife 之所以能够被调用是因为Butterknife.bind(this) 和 Butterkn
         以DifField中的数值进行一一对应查找（查找不到报错）
         DifField的value值只能是被包含SrcClass的vallue值（如果不是就报错）
     3.如果能够在SrcClass中的类找到对应的成员变量，就为被注解的类赋值
+
+细节：
+    1.FieldDesc用于拼接源数据的字段

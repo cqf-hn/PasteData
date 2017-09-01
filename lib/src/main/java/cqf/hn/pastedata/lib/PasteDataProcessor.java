@@ -2,6 +2,7 @@ package cqf.hn.pastedata.lib;
 
 import com.google.auto.service.AutoService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,7 +18,8 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Name;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -28,6 +30,7 @@ import javax.tools.Diagnostic;
 import cqf.hn.pastedata.lib.annotation.DifField;
 import cqf.hn.pastedata.lib.annotation.SrcClass;
 import cqf.hn.pastedata.lib.model.DifFieldModel;
+import cqf.hn.pastedata.lib.model.FieldDesc;
 import cqf.hn.pastedata.lib.model.SrcClassModel;
 
 
@@ -55,7 +58,7 @@ public class PasteDataProcessor extends AbstractProcessor {
      * 解析的目标注解集合
      */
     private Map<TypeElement, PasteClass> targetClassMap = new HashMap<>();
-    ;
+
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -90,6 +93,13 @@ public class PasteDataProcessor extends AbstractProcessor {
         return true;
     }
 
+    /**
+     * 处理SrcClass
+     * 用SrcClassModel保存字段Dst的字段
+     * 用PasteClass保存Dst的set的方法
+     * 通过Dst的set的方法转换get的方法
+     * 用PasteClass保存get的方法
+     */
     private void processSrcClass(RoundEnvironment roundEnv) {
         for (Element ele : roundEnv.getElementsAnnotatedWith(SrcClass.class)/*获得被该注解声明的元素合集*/) {
             TypeElement typeElement = (TypeElement) ele;
@@ -97,29 +107,86 @@ public class PasteDataProcessor extends AbstractProcessor {
             SrcClassModel classModel = new SrcClassModel(ele);
             pasteClass.addSrcClass(classModel);
             println("p_element=" + ele.getSimpleName() + ",p_set=" + ele.getModifiers());
+
             //遍历类的内容
             List<? extends Element> elements = typeElement.getEnclosedElements();
+            ArrayList<FieldDesc> fieldDescs = new ArrayList<>();
+            ArrayList<String> setMethodNames = new ArrayList<>();
+            ArrayList<String> getMethodNames = new ArrayList<>();
             for (Element element : elements) {
                 if (element.getKind().equals(ElementKind.FIELD)) {//字段->VariableElement
                     VariableElement varElement = (VariableElement) element;
                     TypeMirror typeMirror = varElement.asType();
-                    Name name = varElement.getSimpleName();
-                    String fieldName = name.toString();//字段名称
+                    String fieldName = varElement.getSimpleName().toString();//字段名称
                     String fieldType = typeMirror.toString();//字段类型
+                    String fieldTypePackage = "";
+                    if (fieldType.contains(".")) {//不是8个基础类型
+                        fieldTypePackage = fieldType;
+                        fieldType = fieldType.substring(fieldType.lastIndexOf(".") + 1);
+                    }
+                    FieldDesc fieldDesc = new FieldDesc();
+                    fieldDesc.setFieldName(fieldName);
+                    fieldDesc.setFieldType(fieldType);
+                    fieldDesc.setFieldTypePackage(fieldTypePackage);
+                    fieldDescs.add(fieldDesc);
                 } else if (element.getKind().equals(ElementKind.CLASS)) {//内部类->TypeElement
                     System.out.println(element);
                 } else if (element.getKind().equals(ElementKind.CONSTRUCTOR)) {//构造器->ExecutableElement
-                    System.out.println(element);
+
                 } else if (element.getKind().equals(ElementKind.METHOD)) {//方法->ExecutableElement
-                    System.out.println(element);
+                    ExecutableElement exeElement = (ExecutableElement) element;
+                    //List<? extends TypeMirror> thrownTypes = exeElement.getThrownTypes();//异常类型
+                    //List<? extends VariableElement> params = exeElement.getParameters();//参数
+                    //TypeMirror typeMirror = exeElement.getReturnType();//返回类型
+                    List<? extends VariableElement> params = exeElement.getParameters();
+                    Set<Modifier> modifiers = exeElement.getModifiers();//修饰符public/static/final...
+                    if (params.size() == 1 && modifiers.size() == 1 && modifiers.iterator().next().toString().equals("public")) {//只有一个修饰符：public
+                        String methodName = exeElement.getSimpleName().toString();//方法名
+                        String getMethodName;
+                        if (methodName.startsWith("set")) {//以set方法为基准
+                            setMethodNames.add(methodName);
+                            //转换对应的get方法
+                            VariableElement varElement = params.get(0);//获取set方法参数类型
+                            TypeMirror typeMirror = varElement.asType();
+                            String type = typeMirror.toString();
+                            if (type.equals("Boolean") || type.equals("boolean")) {//判断参数类型
+                                String str = methodName.replace("set", "");
+                                if (str.toLowerCase().equals("is")) {//只有is
+                                    if (str.startsWith("Is")) {
+                                        getMethodName = str.toLowerCase();
+                                    } else {
+                                        getMethodName = str;
+                                    }
+                                } else {//is与其他单词拼接或没有is
+                                    if (str.startsWith("iS") || str.startsWith("IS")) {
+                                        getMethodName = str;
+                                    } else if (str.startsWith("Is")) {
+                                        getMethodName = str.replace("Is","is");
+                                    } else if (str.startsWith("is")) {
+                                        getMethodName = str;
+                                    } else {
+                                        getMethodName = "is".concat(str);
+                                    }
+                                }
+                            } else {
+                                getMethodName = methodName.replace("set", "get");
+                            }
+                            getMethodNames.add(getMethodName);
+                        }
+                    }
                 } else if (element.getKind().equals(ElementKind.ENUM)) {//枚举->TypeElement
                     System.out.println(element);
                 }
             }
-
+            classModel.addFieldDescs(fieldDescs);
+            pasteClass.addSetMethodNames(setMethodNames);
+            pasteClass.addGetMethodNames(getMethodNames);
         }
     }
 
+    /**
+     * 处理DifField
+     */
     private void processDifField(RoundEnvironment roundEnv) {
         for (Element ele : roundEnv.getElementsAnnotatedWith(DifField.class)/*获得被该注解声明的元素合集*/) {
             PasteClass pasteClass = getPasteClass((TypeElement) ele.getEnclosingElement());

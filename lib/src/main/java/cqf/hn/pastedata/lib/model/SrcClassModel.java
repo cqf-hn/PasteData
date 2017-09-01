@@ -23,6 +23,7 @@ public class SrcClassModel {
     private TypeElement mFieldElement;
 
     private ArrayList<String> classPaths = new ArrayList<>();
+    private ArrayList<FieldDesc> fieldDescs;
 
     public SrcClassModel(Element element) throws IllegalArgumentException {
         if (element.getKind() != ElementKind.CLASS) {//判断是否是类成员
@@ -57,7 +58,15 @@ public class SrcClassModel {
         return classPaths;
     }
 
+    public ArrayList<FieldDesc> getFieldDescs() {
+        return fieldDescs;
+    }
+
     public TypeMirror getFieldType() {
         return mFieldElement.asType();
+    }
+
+    public void addFieldDescs(ArrayList<FieldDesc> fieldDescs) {
+        this.fieldDescs = fieldDescs;
     }
 }

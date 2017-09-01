@@ -32,6 +32,8 @@ public class PasteClass {
      * 元素辅助类
      */
     public Elements mElementUtils;
+    private ArrayList<String> setMethodNames;
+    private ArrayList<String> getMethodNames;
 
     public PasteClass(TypeElement classElement, Elements elementUtils) {
         this.mClassElement = classElement;
@@ -81,5 +83,13 @@ public class PasteClass {
     private static String getClassName(TypeElement type, String packageName) {
         int packageLen = packageName.length() + 1;
         return type.getQualifiedName().toString().substring(packageLen).replace('.', '$');
+    }
+
+    public void addSetMethodNames(ArrayList<String> setMethodNames) {
+        this.setMethodNames = setMethodNames;
+    }
+
+    public void addGetMethodNames(ArrayList<String> getMethodNames) {
+        this.getMethodNames = getMethodNames;
     }
 }
