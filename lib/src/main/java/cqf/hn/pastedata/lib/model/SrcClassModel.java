@@ -9,9 +9,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 
 import cqf.hn.pastedata.lib.annotation.SrcClass;
 
@@ -23,7 +21,6 @@ public class SrcClassModel {
     private TypeElement mFieldElement;
 
     private ArrayList<String> classPaths = new ArrayList<>();
-    private ArrayList<FieldDesc> fieldDescs;
 
     public SrcClassModel(Element element) throws IllegalArgumentException {
         if (element.getKind() != ElementKind.CLASS) {//判断是否是类成员
@@ -50,23 +47,9 @@ public class SrcClassModel {
         }
     }
 
-    public Name getFieldName() {
-        return mFieldElement.getSimpleName();
-    }
+
 
     public ArrayList<String> getClassPaths() {
         return classPaths;
-    }
-
-    public ArrayList<FieldDesc> getFieldDescs() {
-        return fieldDescs;
-    }
-
-    public TypeMirror getFieldType() {
-        return mFieldElement.asType();
-    }
-
-    public void addFieldDescs(ArrayList<FieldDesc> fieldDescs) {
-        this.fieldDescs = fieldDescs;
     }
 }

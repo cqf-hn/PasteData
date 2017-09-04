@@ -21,7 +21,7 @@ import cqf.hn.pastedata.lib.annotation.SrcClass;
 /**
  * set方法必须提供
  */
-@SrcClass(value = {SrcData1.class})
+@SrcClass(value = {SrcData1.class,MainActivity.class,SrcData2.class})
 public class DstData {// TypeElement
 
     public DstData() { // ExecuteableElement
@@ -33,6 +33,7 @@ public class DstData {// TypeElement
     @DifField(value = {SrcData1.class, SrcData2.class, SrcData3.class}, name = {"type1", "type2", "type3"})
     private String type;
     private String desc;
+    @DifField(value = {SrcData1.class, SrcData2.class, SrcData3.class}, name = {"type1", "type2", "type3"})
     private String title;
     /*测试*/
     private int a;
@@ -199,7 +200,6 @@ public class DstData {// TypeElement
         a = newA;
     }
 
-    @SrcClass(value = {SrcData1.class})
     public class InnerClass {/*测试*/
         private String name;
         private String des;

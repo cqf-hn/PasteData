@@ -84,7 +84,7 @@ public class PasteDataProcessor extends AbstractProcessor {
         try {
             for (Map.Entry<TypeElement, PasteClass> entry : targetClassMap.entrySet()) {
                 info("generating file for %s", entry.getValue().getFullClassName());
-                //entry.getValue().generateFinder().writeTo(filer);
+                entry.getValue().generateFinder().writeTo(filer);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,7 +105,7 @@ public class PasteDataProcessor extends AbstractProcessor {
             TypeElement typeElement = (TypeElement) ele;
             PasteClass pasteClass = getPasteClass(typeElement);
             SrcClassModel classModel = new SrcClassModel(ele);
-            pasteClass.addSrcClass(classModel);
+            pasteClass.setSrcClassModel(classModel);
             println("p_element=" + ele.getSimpleName() + ",p_set=" + ele.getModifiers());
 
             //遍历类的内容
@@ -178,7 +178,6 @@ public class PasteDataProcessor extends AbstractProcessor {
                     System.out.println(element);
                 }
             }
-            classModel.addFieldDescs(fieldDescs);
             pasteClass.addSetMethodNames(setMethodNames);
             pasteClass.addGetMethodNames(getMethodNames);
         }
@@ -191,7 +190,7 @@ public class PasteDataProcessor extends AbstractProcessor {
         for (Element ele : roundEnv.getElementsAnnotatedWith(DifField.class)/*获得被该注解声明的元素合集*/) {
             PasteClass pasteClass = getPasteClass((TypeElement) ele.getEnclosingElement());
             DifFieldModel fieldModel = new DifFieldModel(ele);
-            pasteClass.addDifField(fieldModel);
+            pasteClass.addDifField(ele.getSimpleName().toString(),fieldModel);
         }
     }
 

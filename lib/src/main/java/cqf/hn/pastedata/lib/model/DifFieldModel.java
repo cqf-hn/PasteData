@@ -2,6 +2,7 @@ package cqf.hn.pastedata.lib.model;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +24,19 @@ public class DifFieldModel {
 
     private VariableElement mFieldElement;
 
+    /**
+     * package.+类名集合
+     */
     private ArrayList<String> classPaths = new ArrayList<>();
+    /**
+     * 字段集合
+     * 可以是字段名，也可以是get方法
+     */
     private String[] names;
+    /**
+     * 类和字段名的映射
+     */
+    private Map<String, String> difFieldValue = new HashMap<>();
 
     public DifFieldModel(Element element) throws IllegalArgumentException {
         if (element.getKind() != ElementKind.FIELD) {//判断是否是类成员
@@ -52,6 +64,9 @@ public class DifFieldModel {
                 }
             }
         }
+        for (int i = 0; i < Math.min(names.length, classPaths.size()); i++) {
+            difFieldValue.put(classPaths.get(i),names[i]);
+        }
     }
 
     public Name getFieldName() {
@@ -69,4 +84,12 @@ public class DifFieldModel {
     public TypeMirror getFieldType() {
         return mFieldElement.asType();
     }
-}  
+
+    public Map<String, String> getDifFieldValue() {
+        return difFieldValue;
+    }
+
+    public void setDifFieldValue(Map<String, String> difFieldValue) {
+        this.difFieldValue = difFieldValue;
+    }
+}
