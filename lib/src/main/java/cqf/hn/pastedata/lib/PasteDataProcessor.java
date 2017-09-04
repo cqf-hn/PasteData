@@ -27,9 +27,9 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
-import cqf.hn.pastedata.lib.annotation.DifField;
+import cqf.hn.pastedata.lib.annotation.DifGetMethod;
 import cqf.hn.pastedata.lib.annotation.SrcClass;
-import cqf.hn.pastedata.lib.model.DifFieldModel;
+import cqf.hn.pastedata.lib.model.DifGetMethodModel;
 import cqf.hn.pastedata.lib.model.FieldDesc;
 import cqf.hn.pastedata.lib.model.SrcClassModel;
 
@@ -74,7 +74,7 @@ public class PasteDataProcessor extends AbstractProcessor {
         targetClassMap.clear();
         try {
             processSrcClass(roundEnvironment);
-            processDifField(roundEnvironment);
+            processDifGetMethod(roundEnvironment);
 
         } catch (IllegalArgumentException e) {
             error(e.getMessage());
@@ -84,7 +84,7 @@ public class PasteDataProcessor extends AbstractProcessor {
         try {
             for (Map.Entry<TypeElement, PasteClass> entry : targetClassMap.entrySet()) {
                 info("generating file for %s", entry.getValue().getFullClassName());
-                entry.getValue().generateFinder().writeTo(filer);
+                //entry.getValue().generateFinder().writeTo(filer);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -137,10 +137,12 @@ public class PasteDataProcessor extends AbstractProcessor {
                     ExecutableElement exeElement = (ExecutableElement) element;
                     //List<? extends TypeMirror> thrownTypes = exeElement.getThrownTypes();//异常类型
                     //List<? extends VariableElement> params = exeElement.getParameters();//参数
-                    //TypeMirror typeMirror = exeElement.getReturnType();//返回类型
+                    TypeMirror returnMirror = exeElement.getReturnType();//返回类型
                     List<? extends VariableElement> params = exeElement.getParameters();
                     Set<Modifier> modifiers = exeElement.getModifiers();//修饰符public/static/final...
-                    if (params.size() == 1 && modifiers.size() == 1 && modifiers.iterator().next().toString().equals("public")) {//只有一个修饰符：public
+                    if (params.size() == 1
+                            && modifiers.size() == 1 && modifiers.iterator().next().toString().equals("public") //只有一个修饰符：public
+                            && returnMirror.toString().equals("void")) {
                         String methodName = exeElement.getSimpleName().toString();//方法名
                         String getMethodName;
                         if (methodName.startsWith("set")) {//以set方法为基准
@@ -161,7 +163,7 @@ public class PasteDataProcessor extends AbstractProcessor {
                                     if (str.startsWith("iS") || str.startsWith("IS")) {
                                         getMethodName = str;
                                     } else if (str.startsWith("Is")) {
-                                        getMethodName = str.replace("Is","is");
+                                        getMethodName = str.replace("Is", "is");
                                     } else if (str.startsWith("is")) {
                                         getMethodName = str;
                                     } else {
@@ -178,19 +180,35 @@ public class PasteDataProcessor extends AbstractProcessor {
                     System.out.println(element);
                 }
             }
-            pasteClass.addSetMethodNames(setMethodNames);
-            pasteClass.addGetMethodNames(getMethodNames);
+            pasteClass.addSetMethodNames(setMethodNames);//保存Dst的Set方法名
+            pasteClass.addGetMethodNames(getMethodNames);//保存Src的Get方法名(由Dst的Set方法名推导出)
         }
     }
 
     /**
-     * 处理DifField
+     * 处理DifGetMethod
      */
-    private void processDifField(RoundEnvironment roundEnv) {
-        for (Element ele : roundEnv.getElementsAnnotatedWith(DifField.class)/*获得被该注解声明的元素合集*/) {
-            PasteClass pasteClass = getPasteClass((TypeElement) ele.getEnclosingElement());
-            DifFieldModel fieldModel = new DifFieldModel(ele);
-            pasteClass.addDifField(ele.getSimpleName().toString(),fieldModel);
+    private void processDifGetMethod(RoundEnvironment roundEnv) {
+        for (Element ele : roundEnv.getElementsAnnotatedWith(DifGetMethod.class)/*获得被该注解声明的元素合集*/) {
+            TypeElement typeElement = (TypeElement) ele.getEnclosingElement();
+            PasteClass pasteClass = getPasteClass(typeElement);
+            ExecutableElement exeElement = (ExecutableElement) ele;
+            List<? extends VariableElement> params = exeElement.getParameters();
+            Set<Modifier> modifiers = exeElement.getModifiers();
+            TypeMirror returnMirror = exeElement.getReturnType();//返回类型
+            if (ele.getSimpleName().toString().startsWith("set") //只能是set开头
+                    && params.size() == 1//只有一个参数
+                    && modifiers.size() == 1 && modifiers.iterator().next().toString().equals("public")//只有public作为修饰符
+                    && returnMirror.toString().equals("void")) {//返回类型为void
+                //满足以上要求
+                DifGetMethodModel methodModel = new DifGetMethodModel(ele);
+                pasteClass.addDifGetMethod(ele.getSimpleName().toString(), methodModel);
+            } else {
+                String concat = typeElement.getSimpleName().toString().concat(".".concat(ele.getSimpleName().toString().concat("()")));
+                error("Annotation DifGetMethod Cannot be used with:%s", concat);
+                throw new UnsupportedOperationException(String.format("Annotation DifGetMethod Cannot be used with:%s", concat));
+            }
+
         }
     }
 
@@ -213,7 +231,7 @@ public class PasteDataProcessor extends AbstractProcessor {
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> types = new LinkedHashSet<String>();
         types.add(SrcClass.class.getCanonicalName());
-        types.add(DifField.class.getCanonicalName());
+        types.add(DifGetMethod.class.getCanonicalName());
         return types;
     }
 

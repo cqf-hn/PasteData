@@ -1,6 +1,6 @@
 package cqf.hn.pastedata;// PackageElement
 
-import cqf.hn.pastedata.lib.annotation.DifField;
+import cqf.hn.pastedata.lib.annotation.DifGetMethod;
 import cqf.hn.pastedata.lib.PasteData;
 import cqf.hn.pastedata.lib.annotation.SrcClass;
 
@@ -12,9 +12,9 @@ import cqf.hn.pastedata.lib.annotation.SrcClass;
  * 那么roundEnvironment.getElementsAnnotatedWith(SrcClass.class)的元素集合中必定有个元素（Element为TypeElement）
  * 那么如果遍历roundEnvironment.getElementsAnnotatedWith(SrcClass.class)，由元素（Element）ele.getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
  * <p>
- * 例如@DifField注释了成员变量id
- * 那么roundEnvironment.getElementsAnnotatedWith(DifField.class)的元素集合中必定有个元素（Element为VariableElement）
- * 那么如果遍历roundEnvironment.getElementsAnnotatedWith(DifField.class)，由元素（Element）ele.getEnclosingElement()->即获得TypeElement（cqf.hn.pastedata.DstData对于的元素）
+ * 例如@DifGetMethod注释了成员变量id
+ * 那么roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)的元素集合中必定有个元素（Element为VariableElement）
+ * 那么如果遍历roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)，由元素（Element）ele.getEnclosingElement()->即获得TypeElement（cqf.hn.pastedata.DstData对于的元素）
  * ele.getEnclosingElement().getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
  */
 
@@ -30,10 +30,8 @@ public class DstData {// TypeElement
     }
 
     private String id; // VariableElement
-    @DifField(value = {SrcData1.class, SrcData2.class, SrcData3.class}, name = {"type1", "type2", "type3"})
     private String type;
     private String desc;
-    @DifField(value = {SrcData1.class, SrcData2.class, SrcData3.class}, name = {"type1", "type2", "type3"})
     private String title;
     /*测试*/
     private int a;
@@ -65,6 +63,7 @@ public class DstData {// TypeElement
         return iSHAS;
     }
 
+    @DifGetMethod(value = {SrcData1.class, SrcData2.class, SrcData3.class}, method_name = {"type1", "type2", "type3"})
     public void setiSHAS(boolean iSHAS) {
         this.iSHAS = iSHAS;
     }
@@ -129,9 +128,6 @@ public class DstData {// TypeElement
      *
      * 所以在action的全局变量和JavaBean命名时应该注意符合以上命名规范。
      */
-
-
-
     String getId() {
         return "";
     }
@@ -144,6 +140,7 @@ public class DstData {// TypeElement
         return type;
     }
 
+    @DifGetMethod(value = {SrcData1.class, SrcData2.class, SrcData3.class})
     public void setType(String type) {
         this.type = type;
     }
@@ -200,9 +197,34 @@ public class DstData {// TypeElement
         a = newA;
     }
 
+    @SrcClass(value = {SrcData1.class,MainActivity.class,SrcData2.class})
     public class InnerClass {/*测试*/
         private String name;
         private String des;
         private String size;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getDes() {
+            return des;
+        }
+
+        public void setDes(String des) {
+            this.des = des;
+        }
+
+        public String getSize() {
+            return size;
+        }
+
+        public void setSize(String size) {
+            this.size = size;
+        }
     }
 }

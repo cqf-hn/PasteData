@@ -11,44 +11,41 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
 
-import cqf.hn.pastedata.lib.annotation.DifField;
+import cqf.hn.pastedata.lib.annotation.DifGetMethod;
 
 /**
- * 被DifField注解标记的字段的模型类
+ * 被DifGetMethod注解标记的字段的模型类
  */
-public class DifFieldModel {
+public class DifGetMethodModel {
 
-    private VariableElement mFieldElement;
+    private ExecutableElement executableElement;
 
     /**
      * package.+类名集合
      */
     private ArrayList<String> classPaths = new ArrayList<>();
     /**
-     * 字段集合
-     * 可以是字段名，也可以是get方法
+     * get方法名
      */
     private String[] names;
     /**
-     * 类和字段名的映射
+     * key：Src的全路径名
+     * value：get方法名
      */
-    private Map<String, String> difFieldValue = new HashMap<>();
+    private Map<String, String> difGetMethodValue = new HashMap<>();
 
-    public DifFieldModel(Element element) throws IllegalArgumentException {
-        if (element.getKind() != ElementKind.FIELD) {//判断是否是类成员
+    public DifGetMethodModel(Element element) throws IllegalArgumentException {
+        if (element.getKind() != ElementKind.METHOD) {
             throw new IllegalArgumentException(String.format("Only field can be annotated with @%s",
-                    DifField.class.getSimpleName()));
+                    DifGetMethod.class.getSimpleName()));
         }
-        mFieldElement = (VariableElement) element;
+        executableElement = (ExecutableElement) element;
         //获取注解和值  
-        DifField difField = mFieldElement.getAnnotation(DifField.class);
-        names = difField.name();
-        //Class[] value = difField.value();无法直接获取到Class相关的值
-        List<? extends AnnotationMirror> mirrors = mFieldElement.getAnnotationMirrors();
+        DifGetMethod difGetMethod = executableElement.getAnnotation(DifGetMethod.class);
+        names = difGetMethod.method_name();
+        //Class[] value = difGetMethod.value();无法直接获取到Class相关的值
+        List<? extends AnnotationMirror> mirrors = executableElement.getAnnotationMirrors();
         for (AnnotationMirror mirror : mirrors) {
             Map<? extends ExecutableElement, ? extends AnnotationValue> values = mirror.getElementValues();
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
@@ -64,13 +61,13 @@ public class DifFieldModel {
                 }
             }
         }
-        for (int i = 0; i < Math.min(names.length, classPaths.size()); i++) {
-            difFieldValue.put(classPaths.get(i),names[i]);
+        for (int i = 0; i < classPaths.size(); i++) {
+            if (i >= names.length) {
+                difGetMethodValue.put(classPaths.get(i), "");
+            } else {
+                difGetMethodValue.put(classPaths.get(i), names[i]);
+            }
         }
-    }
-
-    public Name getFieldName() {
-        return mFieldElement.getSimpleName();
     }
 
     public ArrayList<String> getClassPaths() {
@@ -81,15 +78,11 @@ public class DifFieldModel {
         return names;
     }
 
-    public TypeMirror getFieldType() {
-        return mFieldElement.asType();
+    public Map<String, String> getDifGetMethodValue() {
+        return difGetMethodValue;
     }
 
-    public Map<String, String> getDifFieldValue() {
-        return difFieldValue;
-    }
-
-    public void setDifFieldValue(Map<String, String> difFieldValue) {
-        this.difFieldValue = difFieldValue;
+    public void setDifGetMethodValue(Map<String, String> difGetMethodValue) {
+        this.difGetMethodValue = difGetMethodValue;
     }
 }

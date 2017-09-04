@@ -29,3 +29,11 @@ butterknife 之所以能够被调用是因为Butterknife.bind(this) 和 Butterkn
 
 细节：
     1.FieldDesc用于拼接源数据的字段
+
+
+
+杂乱的思路：
+    将DifField注解改为DifGetMethod(每个PasteClass可能有多个DifGetMethod)
+    每个PasteClass有个HasMap：key->Dst中对应的方法名;value->DifGetMethod
+    DifGetMethod中有个HasMap:key->ClassPath;key->Src中get方法(如果Src中没有对应的get的方法，设置为空字符串，或者不填
+    ，则赋值时，不调用对应的set方法)

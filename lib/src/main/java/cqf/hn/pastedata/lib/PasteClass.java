@@ -3,7 +3,6 @@ package cqf.hn.pastedata.lib;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
@@ -11,14 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
-import cqf.hn.pastedata.lib.model.DifFieldModel;
-import cqf.hn.pastedata.lib.model.FieldDesc;
+import cqf.hn.pastedata.lib.model.DifGetMethodModel;
 import cqf.hn.pastedata.lib.model.SrcClassModel;
-import cqf.hn.pastedata.lib.util.TypeUtil;
 
 /**
  * Created by cqf on 2017/8/27 19:01
@@ -29,10 +25,10 @@ public class PasteClass {
      */
     public TypeElement mClassElement;
     /**
-     * 不同方法合集
-     * Dst中的字段名
+     * key：set方法名
+     * value：被DifGetMethod注释的方法的
      */
-    public Map<String, DifFieldModel> mDifFiled;
+    public Map<String, DifGetMethodModel> mDifGetMethods;
     /**
      * 类集合
      */
@@ -44,12 +40,11 @@ public class PasteClass {
     public Elements mElementUtils;
     private ArrayList<String> setMethodNames;
     private ArrayList<String> getMethodNames;
-    private Map<String, FieldDesc> difSetMethodNames;
 
     public PasteClass(TypeElement classElement, Elements elementUtils) {
         this.mClassElement = classElement;
         this.mElementUtils = elementUtils;
-        this.mDifFiled = new HashMap<>();
+        this.mDifGetMethods = new HashMap<>();
     }
 
     /**
@@ -62,8 +57,8 @@ public class PasteClass {
     /**
      * 添加一个成员
      */
-    public void addDifField(String field, DifFieldModel difField) {
-        mDifFiled.put(field, difField);
+    public void addDifGetMethod(String methodName, DifGetMethodModel difGetMethod) {
+        mDifGetMethods.put(methodName, difGetMethod);
     }
 
     /**
@@ -81,9 +76,9 @@ public class PasteClass {
          * 构建方法
          */
         MethodSpec.Builder pasteMethod = MethodSpec.methodBuilder("paste")
-                .addModifiers(Modifier.PUBLIC)
+                //.addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .addParameter(TypeName.get(mClassElement.asType()), "dstData", Modifier.FINAL)
+                //.addParameter(TypeName.get(mClassElement.asType()), "dstData", Modifier.FINAL)
                 .addParameter(TypeName.OBJECT, "srcData");
         for (int i = 0; i < srcClassModel.getClassPaths().size(); i++) {
             String classPath = srcClassModel.getClassPaths().get(i);
@@ -100,7 +95,8 @@ public class PasteClass {
                 pasteMethod.addStatement("$T src = ($T)srcData", ClassName.get(packageName, simpleName)
                         , ClassName.get(packageName, simpleName));//强转
                 for (int j = 0; j < setMethodNames.size(); j++) {
-                    pasteMethod.addStatement("dstData.$N(src.$N())", setMethodNames.get(j), getMethodNames.get(j));
+                    String setMethodName = setMethodNames.get(j);
+                    pasteMethod.addStatement("dstData.$N(src.$N())", setMethodName, getMethodNames.get(j));
                 }
                 pasteMethod.endControlFlow();
             } else {
@@ -108,15 +104,16 @@ public class PasteClass {
                 pasteMethod.addStatement("$T src = ($T)srcData", ClassName.get(packageName, simpleName)
                         , ClassName.get(packageName, simpleName));//强转
                 for (int j = 0; j < setMethodNames.size(); j++) {
-                    pasteMethod.addStatement("dstData.$N(src.$N())", setMethodNames.get(j), getMethodNames.get(j));
+                    String setMethodName = setMethodNames.get(j);
+                    pasteMethod.addStatement("dstData.$N(src.$N())", setMethodName, getMethodNames.get(j));
                 }
                 pasteMethod.endControlFlow();
             }
         }
         MethodSpec.Builder unPasteMethod = MethodSpec.methodBuilder("unpaste")
-                .addModifiers(Modifier.PUBLIC)
+                //.addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .addParameter(TypeName.get(mClassElement.asType()), "dstData", Modifier.FINAL);
+                /*.addParameter(TypeName.get(mClassElement.asType()), "dstData", Modifier.FINAL)*/;
         String packageName = getPackageName(mClassElement);
         String className = getClassName(mClassElement, packageName);
         ClassName pasteClassName = ClassName.get(packageName, className);
@@ -124,8 +121,8 @@ public class PasteClass {
          * 构建类
          */
         TypeSpec pasteClass = TypeSpec.classBuilder(pasteClassName.simpleName() + "$$DataPaster")
-                .addModifiers(Modifier.PUBLIC)
-                .addSuperinterface(ParameterizedTypeName.get(TypeUtil.DATA_PASTER, TypeName.get(mClassElement.asType())))
+                //.addModifiers(Modifier.PUBLIC)
+                //.addSuperinterface(ParameterizedTypeName.get(TypeUtil.DATA_PASTER, TypeName.get(mClassElement.asType())))
                 .addMethod(pasteMethod.build())
                 .addMethod(unPasteMethod.build())
                 .build();
