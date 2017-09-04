@@ -9,7 +9,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 /**
  * Created by cqf on 2017/8/25 18:05
  */
-@Target(METHOD)
+@Target({METHOD})
 @Retention(CLASS)
 public @interface DifGetMethod {
     Class[] value() default {Object.class};

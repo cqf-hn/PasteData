@@ -38,3 +38,5 @@ butterknife 之所以能够被调用是因为Butterknife.bind(this) 和 Butterkn
     DifGetMethod中有个HasMap:key->ClassPath;key->Src中get方法(如果Src中没有对应的get的方法，设置为空字符串，或者不填
     ，则赋值时，不调用对应的set方法)
     DifGetMethod中的类不存在SrcClass中的类，不做处理
+
+优化->由字段找到对应的set方法
