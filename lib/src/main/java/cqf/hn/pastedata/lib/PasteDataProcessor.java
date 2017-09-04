@@ -84,7 +84,7 @@ public class PasteDataProcessor extends AbstractProcessor {
         try {
             for (Map.Entry<TypeElement, PasteClass> entry : targetClassMap.entrySet()) {
                 info("generating file for %s", entry.getValue().getFullClassName());
-                //entry.getValue().generateFinder().writeTo(filer);
+                entry.getValue().generateFinder().writeTo(filer);
             }
         } catch (Exception e) {
             e.printStackTrace();
