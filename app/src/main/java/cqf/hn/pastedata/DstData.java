@@ -2,26 +2,26 @@ package cqf.hn.pastedata;// PackageElement
 
 import cqf.hn.pastedata.lib.PasteData;
 import cqf.hn.pastedata.lib.annotation.DifGetMethod;
-import cqf.hn.pastedata.lib.annotation.SrcClass;
 
 /**
  * Created by cqf on 2017/8/25 16:48
- * 在Java中一个类可以用元素（Element）来表示
- * 被注解注释的元素会被传递给AbstractProcessor的process方法中的roundEnvironment.getElementsAnnotatedWith(注解.class)的集合中
- * 例如@SrcClass注释了DstData
- * 那么roundEnvironment.getElementsAnnotatedWith(SrcClass.class)的元素集合中必定有个元素（Element为TypeElement）
- * 那么如果遍历roundEnvironment.getElementsAnnotatedWith(SrcClass.class)，由元素（Element）ele.getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
- * <p>
- * 例如@DifGetMethod注释了成员变量id
- * 那么roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)的元素集合中必定有个元素（Element为VariableElement）
- * 那么如果遍历roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)，由元素（Element）ele.getEnclosingElement()->即获得TypeElement（cqf.hn.pastedata.DstData对于的元素）
- * ele.getEnclosingElement().getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
+ *
+ * 对Element的一些理解：
+ *      在Java中一个类可以用元素（Element）来表示
+ *      被注解注释的元素会被传递给AbstractProcessor的process方法中的roundEnvironment.getElementsAnnotatedWith(注解.class)的集合中
+ *      例如@SrcClass注释了DstData
+ *      那么roundEnvironment.getElementsAnnotatedWith(SrcClass.class)的元素集合中必定有个元素（Element为TypeElement）
+ *      那么如果遍历roundEnvironment.getElementsAnnotatedWith(SrcClass.class)，由元素（Element）ele.getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
+ *      <p>
+ *      例如@DifGetMethod注释了方法setId
+ *      那么roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)的元素集合中必定有个元素（Element为ExecuteableElement）
+ *      那么如果遍历roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)，由元素（Element）ele.getEnclosingElement()->即获得TypeElement（cqf.hn.pastedata.DstData对于的元素）
+ *      ele.getEnclosingElement().getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
  */
 
 /**
  * set方法必须提供
  */
-@SrcClass(value = {SrcData1.class, MainActivity.class, SrcData2.class})
 public class DstData {// TypeElement
 
     public DstData() { // ExecuteableElement

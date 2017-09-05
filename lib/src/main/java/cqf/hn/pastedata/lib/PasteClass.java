@@ -86,7 +86,7 @@ public class PasteClass {
                 .addAnnotation(Override.class)
                 .addParameter(TypeName.get(mClassElement.asType()), "dstData", Modifier.FINAL)
                 .addParameter(TypeName.OBJECT, "srcData");
-        for (int i = 0; i < srcClassModel.getClassPaths().size(); i++) {
+        for (int i = 0; srcClassModel != null && srcClassModel.getClassPaths() != null && i < srcClassModel.getClassPaths().size(); i++) {
             String classPath = srcClassModel.getClassPaths().get(i);
             String packageName = "";
             String simpleName;
@@ -103,7 +103,7 @@ public class PasteClass {
             }
             pasteMethod.addStatement("$T src = ($T)srcData", ClassName.get(packageName, simpleName)
                     , ClassName.get(packageName, simpleName));//强转
-            for (int j = 0; j < setMethods.size(); j++) {
+            for (int j = 0; setMethods != null && j < setMethods.size(); j++) {
                 String setMethodName = setMethods.get(j).getMethodName();
                 DifGetMethodModel difGetMethodModel = mDifGetMethods.get(setMethodName);
                 if (difGetMethodModel != null) {
@@ -129,7 +129,7 @@ public class PasteClass {
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(TypeName.get(mClassElement.asType()), "dstData", Modifier.FINAL);
-        for (int j = 0; j < setMethods.size(); j++) {
+        for (int j = 0; setMethods != null && j < setMethods.size(); j++) {
             MethodDesc methodDesc = setMethods.get(j);
             String setMethodName = methodDesc.getMethodName();
             DifGetMethodModel difGetMethodModel = mDifGetMethods.get(setMethodName);

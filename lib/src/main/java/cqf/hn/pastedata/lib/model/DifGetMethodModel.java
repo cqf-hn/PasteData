@@ -62,7 +62,7 @@ public class DifGetMethodModel {
             }
         }
         for (int i = 0; i < classPaths.size(); i++) {
-            if (i >= names.length) {
+            if (names != null && i >= names.length) {
                 difGetMethodValue.put(classPaths.get(i), "");
             } else {
                 difGetMethodValue.put(classPaths.get(i), names[i]);
