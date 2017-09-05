@@ -15,6 +15,7 @@ import cqf.hn.pastedata.lib.annotation.SrcClass;
 
 /**
  * Created by cqf on 2017/8/30 09:43
+ * 被SrcClass注解标记的模型类
  */
 public class SrcClassModel {
 
@@ -46,7 +47,6 @@ public class SrcClassModel {
             }
         }
     }
-
 
 
     public ArrayList<String> getClassPaths() {

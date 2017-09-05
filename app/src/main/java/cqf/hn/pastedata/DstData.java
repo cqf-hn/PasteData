@@ -1,7 +1,6 @@
 package cqf.hn.pastedata;// PackageElement
 
-import cqf.hn.pastedata.lib.PasteData;
-import cqf.hn.pastedata.lib.annotation.DifGetMethod;
+
 
 /**
  * Created by cqf on 2017/8/25 16:48
@@ -19,9 +18,15 @@ import cqf.hn.pastedata.lib.annotation.DifGetMethod;
  *      ele.getEnclosingElement().getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
  */
 
+import cqf.hn.pastedata.lib.PasteData;
+import cqf.hn.pastedata.lib.annotation.DifGetMethod;
+import cqf.hn.pastedata.lib.annotation.SrcClass;
+
 /**
  * set方法必须提供
  */
+
+@SrcClass({SrcData1.class})
 public class DstData {// TypeElement
 
     public DstData() { // ExecuteableElement

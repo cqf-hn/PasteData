@@ -15,7 +15,7 @@ import javax.lang.model.element.ExecutableElement;
 import cqf.hn.pastedata.lib.annotation.DifGetMethod;
 
 /**
- * 被DifGetMethod注解标记的字段的模型类
+ * 被DifGetMethod注解标记的方法的模型类
  */
 public class DifGetMethodModel {
 

@@ -39,7 +39,6 @@ public class PasteClass {
      * 类集合
      */
     public SrcClassModel srcClassModel;
-
     /**
      * 元素辅助类
      */
@@ -61,7 +60,7 @@ public class PasteClass {
     }
 
     /**
-     * 添加一个成员
+     * 添加set方法对应的DifGetMethodModel
      */
     public void addDifGetMethod(String methodName, DifGetMethodModel difGetMethod) {
         mDifGetMethods.put(methodName, difGetMethod);
