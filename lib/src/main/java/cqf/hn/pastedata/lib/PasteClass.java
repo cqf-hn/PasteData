@@ -16,8 +16,11 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
 import cqf.hn.pastedata.lib.model.DifGetMethodModel;
+import cqf.hn.pastedata.lib.model.MethodDesc;
 import cqf.hn.pastedata.lib.model.SrcClassModel;
 import cqf.hn.pastedata.lib.util.TypeUtil;
+
+import static cqf.hn.pastedata.lib.PasteDataProcessor.BASE_TYPE;
 
 /**
  * Created by cqf on 2017/8/27 19:01
@@ -41,7 +44,7 @@ public class PasteClass {
      * 元素辅助类
      */
     public Elements mElementUtils;
-    private ArrayList<String> setMethodNames;
+    private ArrayList<MethodDesc> setMethods;
     private ArrayList<String> getMethodNames;
 
     public PasteClass(TypeElement classElement, Elements elementUtils) {
@@ -100,8 +103,8 @@ public class PasteClass {
             }
             pasteMethod.addStatement("$T src = ($T)srcData", ClassName.get(packageName, simpleName)
                     , ClassName.get(packageName, simpleName));//强转
-            for (int j = 0; j < setMethodNames.size(); j++) {
-                String setMethodName = setMethodNames.get(j);
+            for (int j = 0; j < setMethods.size(); j++) {
+                String setMethodName = setMethods.get(j).getMethodName();
                 DifGetMethodModel difGetMethodModel = mDifGetMethods.get(setMethodName);
                 if (difGetMethodModel != null) {
                     Map<String, String> difGetMethodValue = difGetMethodModel.getDifGetMethodValue();
@@ -121,10 +124,46 @@ public class PasteClass {
             }
             pasteMethod.endControlFlow();
         }
+
         MethodSpec.Builder unPasteMethod = MethodSpec.methodBuilder("unpaste")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(TypeName.get(mClassElement.asType()), "dstData", Modifier.FINAL);
+        for (int j = 0; j < setMethods.size(); j++) {
+            MethodDesc methodDesc = setMethods.get(j);
+            String setMethodName = methodDesc.getMethodName();
+            DifGetMethodModel difGetMethodModel = mDifGetMethods.get(setMethodName);
+            if (difGetMethodModel != null) {
+                Map<String, String> difGetMethodValue = difGetMethodModel.getDifGetMethodValue();
+                if (!BASE_TYPE.contains(methodDesc.getParamType())) {
+                    unPasteMethod.addStatement("dstData.$N(null)", setMethodName);
+                } else if (methodDesc.getParamType().equals("byte")
+                        || methodDesc.getParamType().equals("java.lang.Byte")
+                        || methodDesc.getParamType().equals("short")
+                        || methodDesc.getParamType().equals("java.lang.Short")
+                        || methodDesc.getParamType().equals("int")
+                        || methodDesc.getParamType().equals("java.lang.Integer")) {
+                    unPasteMethod.addStatement("dstData.$N(0)", setMethodName);
+                } else if (methodDesc.getParamType().equals("long")
+                        || methodDesc.getParamType().equals("java.lang.Long")
+                        ) {
+                    unPasteMethod.addStatement("dstData.$N(0L)", setMethodName);
+                } else if (methodDesc.getParamType().equals("float")
+                        || methodDesc.getParamType().equals("java.lang.Float")
+                        ) {
+                    unPasteMethod.addStatement("dstData.$N(0F)", setMethodName);
+                } else if (methodDesc.getParamType().equals("double")
+                        || methodDesc.getParamType().equals("java.lang.Double")) {
+                    unPasteMethod.addStatement("dstData.$N(0D)", setMethodName);
+                } else if (methodDesc.getParamType().equals("boolean")
+                        || methodDesc.getParamType().equals("java.lang.Boolean")) {
+                    unPasteMethod.addStatement("dstData.$N(false)", setMethodName);
+                } else if (methodDesc.getParamType().equals("Char")
+                        || methodDesc.getParamType().equals("java.lang.Character")) {
+                    unPasteMethod.addStatement("dstData.$N('\\u0000')", setMethodName);
+                }
+            }
+        }
 
         /**
          * 构建类
@@ -132,13 +171,16 @@ public class PasteClass {
         String packageName = getPackageName(mClassElement);
         String className = getClassName(mClassElement, packageName);
         ClassName pasteClassName = ClassName.get(packageName, className);
-        TypeSpec pasteClass = TypeSpec.classBuilder(pasteClassName.simpleName() + "$$DataPaster")
+        TypeSpec pasteClass = TypeSpec.classBuilder(pasteClassName.simpleName().concat(PasteDataProcessor.SUFFIX))
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(ParameterizedTypeName.get(TypeUtil.DATA_PASTER, TypeName.get(mClassElement.asType())))
                 .addMethod(pasteMethod.build())
                 .addMethod(unPasteMethod.build())
                 .build();
-        return JavaFile.builder(packageName, pasteClass).build();
+        return JavaFile.builder(packageName, pasteClass).
+
+                build();
+
     }
 
     /**
@@ -156,8 +198,8 @@ public class PasteClass {
         return type.getQualifiedName().toString().substring(packageLen).replace('.', '$');
     }
 
-    public void addSetMethodNames(ArrayList<String> setMethodNames) {
-        this.setMethodNames = setMethodNames;
+    public void addSetMethods(ArrayList<MethodDesc> setMethods) {
+        this.setMethods = setMethods;
     }
 
     public void addGetMethodNames(ArrayList<String> getMethodNames) {

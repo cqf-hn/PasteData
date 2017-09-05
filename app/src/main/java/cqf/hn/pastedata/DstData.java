@@ -1,7 +1,7 @@
 package cqf.hn.pastedata;// PackageElement
 
-import cqf.hn.pastedata.lib.annotation.DifGetMethod;
 import cqf.hn.pastedata.lib.PasteData;
+import cqf.hn.pastedata.lib.annotation.DifGetMethod;
 import cqf.hn.pastedata.lib.annotation.SrcClass;
 
 /**
@@ -21,12 +21,14 @@ import cqf.hn.pastedata.lib.annotation.SrcClass;
 /**
  * set方法必须提供
  */
-@SrcClass(value = {SrcData1.class,MainActivity.class,SrcData2.class})
+@SrcClass(value = {SrcData1.class, MainActivity.class, SrcData2.class})
 public class DstData {// TypeElement
 
     public DstData() { // ExecuteableElement
+        //String as = null;
         System.out.println(toString());
-        PasteData.getInstance().paste(this);
+        PasteData.getInstance().paste(this, null);
+       // as.toLowerCase();
     }
 
     private String id; // VariableElement
@@ -51,114 +53,90 @@ public class DstData {// TypeElement
 
     private boolean has;
 
-    public boolean isHas() {
-        return has;
+    /**
+     * 切割set的方法后
+     * 有is开头：
+     * 只剩下is(只要有第二个字母大写：不变，否则都转换成小写)
+     * is与与其他单词拼接(只要有第二个字母大写：不变)
+     * 如果没有is开头
+     * 添加is在开头
+     */
+
+    @DifGetMethod({MainActivity.class})
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void setHas(boolean has) {
-        this.has = has;
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class}, method_name = {"", "getType1", "getType2"})
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public boolean iSHAS() {
-        return iSHAS;
+    @DifGetMethod(value = {MainActivity.class})
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
-    @DifGetMethod(value = {SrcData1.class, SrcData2.class, SrcData3.class}, method_name = {"type1", "type2", "type3"})
-    public void setiSHAS(boolean iSHAS) {
-        this.iSHAS = iSHAS;
+    @DifGetMethod(value = {MainActivity.class})
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-
-
-    public boolean ISHas() {
-        return ISHas;
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class})
+    public void setA(int a) {
+        this.a = a;
     }
 
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class})
+    public void setSrcData1(SrcData1 srcData1) {
+        this.srcData1 = srcData1;
+    }
+
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class})
     public void setISHas(boolean ISHas) {
         this.ISHas = ISHas;
     }
 
-    public boolean iS() {
-        return iS;
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class})
+    public void setiSHAS(boolean iSHAS) {
+        this.iSHAS = iSHAS;
     }
 
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class})
+    public void setHas(boolean has) {
+        IsHas = has;
+    }
+
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class})
     public void setiS(boolean iS) {
         this.iS = iS;
     }
 
-    public boolean IS() {
-        return IS;
-    }
-
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class})
     public void setIS(boolean IS) {
         this.IS = IS;
     }
 
-    public boolean is() {
-        return is;
-    }
-
+    @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class})
     public void setIs(boolean is) {
         this.is = is;
     }
 
 
-    /**
-     * 切割set的方法后
-     * 有is开头：
-     *        只剩下is(只要有第二个字母大写：不变，否则都转换成小写)
-     *        is与与其他单词拼接(只要有第二个字母大写：不变)
-     * 如果没有is开头
-     *        添加is在开头
-     */
-
-
-
-    /**
-     * get/set 命名规则
-     * 一般JavaBean属性以小写字母开头，驼峰命名格式，相应的 getter/setter 方法是 get/set 接上首字母大写的属性名。例如：属性名为userName，其对应的getter/setter 方法是 getUserName/setUserName。
-     *
-     * 但是，还有一些特殊情况：
-     *
-     * 1、如果属性名的第二个字母大写，那么该属性名直接用作 getter/setter 方法中 get/set 的后部分，就是说大小写不变。例如属性名为uName，方法是getuName/setuName。
-     *
-     * 2、如果前两个字母是大写（一般的专有名词和缩略词都会大写），也是属性名直接用作 getter/setter 方法中 get/set 的后部分。例如属性名为URL，方法是getURL/setURL。
-     *
-     * 3、如果首字母大写，也是属性名直接用作 getter/setter 方法中 get/set 的后部分。例如属性名为Name，方法是getName/setName，这种是最糟糕的情况，会找不到属性出错，因为默认的属性名是name。
-     *
-     * 所以在action的全局变量和JavaBean命名时应该注意符合以上命名规范。
-     */
-    String getId() {
-        return "";
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public String getId() {
+        return id;
     }
 
     public String getType() {
         return type;
     }
 
-    @DifGetMethod(value = {SrcData1.class, SrcData2.class, SrcData3.class})
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getDesc() {
         return desc;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public int getA() {
@@ -169,9 +147,45 @@ public class DstData {// TypeElement
         return srcData1;
     }
 
-    public void setSrcData1(SrcData1 srcData1) {
-        this.srcData1 = srcData1;
+    public boolean ISHas() {
+        return ISHas;
     }
+
+    public boolean iSHAS() {
+        return iSHAS;
+    }
+
+    public boolean isHas() {
+        return IsHas;
+    }
+
+    public boolean iS() {
+        return iS;
+    }
+
+    public boolean IS() {
+        return IS;
+    }
+
+    public boolean is() {
+        return is;
+    }
+
+    /**
+     * get/set 命名规则
+     * 一般JavaBean属性以小写字母开头，驼峰命名格式，相应的 getter/setter 方法是 get/set 接上首字母大写的属性名。例如：属性名为userName，其对应的getter/setter 方法是 getUserName/setUserName。
+     * <p>
+     * 但是，还有一些特殊情况：
+     * <p>
+     * 1、如果属性名的第二个字母大写，那么该属性名直接用作 getter/setter 方法中 get/set 的后部分，就是说大小写不变。例如属性名为uName，方法是getuName/setuName。
+     * <p>
+     * 2、如果前两个字母是大写（一般的专有名词和缩略词都会大写），也是属性名直接用作 getter/setter 方法中 get/set 的后部分。例如属性名为URL，方法是getURL/setURL。
+     * <p>
+     * 3、如果首字母大写，也是属性名直接用作 getter/setter 方法中 get/set 的后部分。例如属性名为Name，方法是getName/setName，这种是最糟糕的情况，会找不到属性出错，因为默认的属性名是name。
+     * <p>
+     * 所以在action的全局变量和JavaBean命名时应该注意符合以上命名规范。
+     */
+
 
     public void setData(SrcData1 srcData1, int a, String desc) throws ClassCastException {
         this.a = a;
@@ -180,7 +194,7 @@ public class DstData {// TypeElement
     }
 
     public SrcData1 getData(SrcData1 srcData1, int a, String desc) throws ClassCastException {
-       return new SrcData1();
+        return new SrcData1();
     }
 
     @Override
@@ -193,11 +207,6 @@ public class DstData {// TypeElement
                 '}';
     }
 
-    public void setA(int newA) {// ExecuteableElement
-        a = newA;
-    }
-
-    @SrcClass(value = {SrcData1.class,MainActivity.class,SrcData2.class})
     public class InnerClass {/*测试*/
         private String name;
         private String des;

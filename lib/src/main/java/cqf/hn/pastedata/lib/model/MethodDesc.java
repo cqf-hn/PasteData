@@ -5,10 +5,22 @@ package cqf.hn.pastedata.lib.model;
  *
  */
 public class MethodDesc {
-    public MethodDesc(String methodName) {
+    private String methodName;
+    private String paramType;
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
 
-    private String methodName;
+    public String getParamType() {
+        return paramType;
+    }
 
+    public void setParamType(String paramType) {
+        this.paramType = paramType;
+    }
 }

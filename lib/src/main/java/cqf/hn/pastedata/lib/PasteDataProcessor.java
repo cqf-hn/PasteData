@@ -31,6 +31,7 @@ import cqf.hn.pastedata.lib.annotation.DifGetMethod;
 import cqf.hn.pastedata.lib.annotation.SrcClass;
 import cqf.hn.pastedata.lib.model.DifGetMethodModel;
 import cqf.hn.pastedata.lib.model.FieldDesc;
+import cqf.hn.pastedata.lib.model.MethodDesc;
 import cqf.hn.pastedata.lib.model.SrcClassModel;
 
 
@@ -40,6 +41,37 @@ import cqf.hn.pastedata.lib.model.SrcClassModel;
 
 @AutoService(Processor.class)
 public class PasteDataProcessor extends AbstractProcessor {
+
+    public static final String SUFFIX = "$$DataPaster";
+    public static final String ANDROID_PREFIX = "android.";
+    public static final String JAVA_PREFIX = "java.";
+    public static final ArrayList<String> BASE_TYPE = new ArrayList<String>() {
+        {
+            add("byte");
+            add("java.lang.Byte");//0
+
+            add("short");
+            add("java.lang.Short");//0
+
+            add("int");
+            add("java.lang.Integer");//0
+
+            add("long");
+            add("java.lang.Long");//0l
+
+            add("float");
+            add("java.lang.Float");//0f
+
+            add("double");
+            add("java.lang.Double");//0d
+
+            add("boolean");
+            add("java.lang.Boolean");//0d
+
+            add("char");// '\u0000'
+            add("java.lang.Character");
+        }
+    };
 
     /**
      * 元素操作的辅助类
@@ -111,7 +143,7 @@ public class PasteDataProcessor extends AbstractProcessor {
             //遍历类的内容
             List<? extends Element> elements = typeElement.getEnclosedElements();
             ArrayList<FieldDesc> fieldDescs = new ArrayList<>();
-            ArrayList<String> setMethodNames = new ArrayList<>();
+            ArrayList<MethodDesc> setMethods = new ArrayList<>();
             ArrayList<String> getMethodNames = new ArrayList<>();
             for (Element element : elements) {
                 if (element.getKind().equals(ElementKind.FIELD)) {//字段->VariableElement
@@ -146,7 +178,10 @@ public class PasteDataProcessor extends AbstractProcessor {
                         String methodName = exeElement.getSimpleName().toString();//方法名
                         String getMethodName;
                         if (methodName.startsWith("set")) {//以set方法为基准
-                            setMethodNames.add(methodName);
+                            MethodDesc methodDesc = new MethodDesc();
+                            methodDesc.setMethodName(methodName);
+                            methodDesc.setParamType(params.get(0).asType().toString());
+                            setMethods.add(methodDesc);
                             //转换对应的get方法
                             VariableElement varElement = params.get(0);//获取set方法参数类型
                             TypeMirror typeMirror = varElement.asType();
@@ -180,7 +215,7 @@ public class PasteDataProcessor extends AbstractProcessor {
                     System.out.println(element);
                 }
             }
-            pasteClass.addSetMethodNames(setMethodNames);//保存Dst的Set方法名
+            pasteClass.addSetMethods(setMethods);//保存Dst的Set方法名
             pasteClass.addGetMethodNames(getMethodNames);//保存Src的Get方法名(由Dst的Set方法名推导出)
         }
     }
