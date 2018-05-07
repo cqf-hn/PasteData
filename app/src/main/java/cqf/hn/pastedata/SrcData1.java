@@ -42,4 +42,13 @@ public class SrcData1 {
     }
 
 
+    @Override
+    public String toString() {
+        return "SrcData1{" +
+                "desc='" + desc + '\'' +
+                ", id='" + id + '\'' +
+                ", type1='" + type1 + '\'' +
+                ", title='" + title + '\'' +
+                '}';
+    }
 }

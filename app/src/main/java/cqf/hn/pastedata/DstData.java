@@ -1,39 +1,37 @@
 package cqf.hn.pastedata;// PackageElement
 
 
-
 /**
  * Created by cqf on 2017/8/25 16:48
- *
+ * <p>
  * 对Element的一些理解：
- *      在Java中一个类可以用元素（Element）来表示
- *      被注解注释的元素会被传递给AbstractProcessor的process方法中的roundEnvironment.getElementsAnnotatedWith(注解.class)的集合中
- *      例如@SrcClass注释了DstData
- *      那么roundEnvironment.getElementsAnnotatedWith(SrcClass.class)的元素集合中必定有个元素（Element为TypeElement）
- *      那么如果遍历roundEnvironment.getElementsAnnotatedWith(SrcClass.class)，由元素（Element）ele.getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
- *      <p>
- *      例如@DifGetMethod注释了方法setId
- *      那么roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)的元素集合中必定有个元素（Element为ExecuteableElement）
- *      那么如果遍历roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)，由元素（Element）ele.getEnclosingElement()->即获得TypeElement（cqf.hn.pastedata.DstData对于的元素）
- *      ele.getEnclosingElement().getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
+ * 在Java中一个类可以用元素（Element）来表示
+ * 被注解注释的元素会被传递给AbstractProcessor的process方法中的roundEnvironment.getElementsAnnotatedWith(注解.class)的集合中
+ * 例如@SrcClass注释了DstData
+ * 那么roundEnvironment.getElementsAnnotatedWith(SrcClass.class)的元素集合中必定有个元素（Element为TypeElement）
+ * 那么如果遍历roundEnvironment.getElementsAnnotatedWith(SrcClass.class)，由元素（Element）ele.getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
+ * <p>
+ * 例如@DifGetMethod注释了方法setId
+ * 那么roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)的元素集合中必定有个元素（Element为ExecuteableElement）
+ * 那么如果遍历roundEnvironment.getElementsAnnotatedWith(DifGetMethod.class)，由元素（Element）ele.getEnclosingElement()->即获得TypeElement（cqf.hn.pastedata.DstData对于的元素）
+ * ele.getEnclosingElement().getEnclosingElement()->即获得PackageElement（cqf.hn.pastedata对于的元素）
  */
 
-import cqf.hn.pastedata.lib.PasteData;
+import android.util.Log;
+
 import cqf.hn.pastedata.lib.annotation.DifGetMethod;
 import cqf.hn.pastedata.lib.annotation.SrcClass;
 
 /**
  * set方法必须提供
  */
-
-@SrcClass({SrcData1.class})
+@SrcClass({SrcData1.class})//* 注解被映射的类
 public class DstData {// TypeElement
 
     public DstData() { // ExecuteableElement
         //String as = null;
-        System.out.println(toString());
-        PasteData.getInstance().paste(this, null);
-       // as.toLowerCase();
+        Log.v("shan", toString());
+        // as.toLowerCase();
     }
 
     private String id; // VariableElement
@@ -67,11 +65,13 @@ public class DstData {// TypeElement
      * 添加is在开头
      */
 
+    //* 此处MainActivity的作用与SrcData1类似
     @DifGetMethod({MainActivity.class})
     public void setId(String id) {
         this.id = id;
     }
 
+    //* 标记get对应的get方法或者没有
     @DifGetMethod(value = {MainActivity.class, SrcData1.class, SrcData2.class}, method_name = {"", "getType1", "getType2"})
     public void setType(String type) {
         this.type = type;
